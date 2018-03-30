@@ -1,8 +1,8 @@
 // Map each class of actor to a character
 var actorChars = {
   "@": Player,
-  "o": Coin, // A coin will wobble up and down
-  "v": Life
+  "o": Coin,
+  "h": Heart
 };
 
 function Level(plan) {
@@ -87,13 +87,12 @@ function Coin(pos) {
 }
 Coin.prototype.type = "coin";
 
-function Life(pos) {
+function Heart(pos) {
   this.basePos = this.pos = pos.plus(new Vector(0.2, 0.1));
   this.size = new Vector(0.6, 0.6);
-  // Make it go back and forth in a sine wave.
   this.wobble = Math.random() * Math.PI * 2;
 }
-Life.prototype.type = "life";
+Heart.prototype.type = "heart";
 
 // Helper function to easily create an element of a type provided
 // and assign it a class.
@@ -260,13 +259,16 @@ Coin.prototype.act = function(step) {
 
 var maxStep = 0.05;
 
-var wobbleSpeed = 4, wobbleDist = 0.09;
+var wobbleSpeed = 4, wobbleDist = 0.08;
 
-Life.prototype.act = function(step) {
+Heart.prototype.act = function(step) {
   this.wobble += step * wobbleSpeed;
   var wobblePos = Math.sin(this.wobble) * wobbleDist;
   this.pos = this.basePos.plus(new Vector(0, wobblePos));
 };
+
+
+
 
 
 var maxStep = 0.05;
@@ -299,12 +301,12 @@ Player.prototype.moveY = function(step, level, keys) {
   var motion = new Vector(0, this.speed.y * step);
   var newPos = this.pos.plus(motion);
   var obstacle = level.obstacleAt(newPos, this.size);
-
-  if (obstacle == "lava") {
-    this.pos = new Vector(4,15)
-  }
   // The floor is also an obstacle -- only allow players to
   // jump if they are touching some obstacle.
+  if (obstacle == "lava"){
+      this.pos = new Vector(4,15)
+    }
+
   if (obstacle) {
     if (keys.up && this.speed.y > 0)
       this.speed.y = -jumpSpeed;
@@ -325,7 +327,7 @@ Player.prototype.act = function(step, level, keys) {
 };
 
 Level.prototype.playerTouched = function(type, actor) {
-  if (type == "coin", "life") {
+  if (type == "coin", "heart") {
     this.actors = this.actors.filter(function(other) {
       return other != actor;
     });
